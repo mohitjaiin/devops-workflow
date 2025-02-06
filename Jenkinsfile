@@ -18,34 +18,34 @@ pipeline {
                 // Install necessary packages including python3-venv
                 sh 'apt-get update && apt-get install -y python3-pip python3-venv'
                 // Create the virtual environment
-                sh 'python3 -m venv venv'  
-                // Activate the virtual environment (using . instead of source)
-                sh '. venv/bin/activate'  
-                // Upgrade pip
-                sh 'python3 -m pip install --upgrade pip'  
+                sh 'python3 -m venv venv'
+                // Activate the virtual environment using . instead of source
+                sh '. venv/bin/activate && python3 -m pip install --upgrade pip'
                 // Install dependencies from requirements.txt
-                sh 'python3 -m pip install -r requirements.txt'  
-                // Install pytest
-                sh 'python3 -m pip install pytest'  
+                sh '. venv/bin/activate && python3 -m pip install -r requirements.txt'
+                // Install pytest inside the virtual environment
+                sh '. venv/bin/activate && python3 -m pip install pytest'
             }
         }
 
         stage('Verify Pytest Installation') {
             steps {
-                sh 'python3 -m pip show pytest || echo "Pytest is not installed properly"'
+                // Check if pytest is correctly installed in the virtual environment
+                sh '. venv/bin/activate && python3 -m pytest --version || echo "Pytest is not installed properly"'
             }
         }
 
         stage('Verify Python and Pip Paths') {
             steps {
-                sh 'which python3'
-                sh 'which pip3'
+                sh '. venv/bin/activate && which python3'
+                sh '. venv/bin/activate && which pip3'
             }
         }
 
         stage('Run Tests') {
             steps {
-                sh 'python3 -m pytest tests/'  // Run tests using python3
+                // Run the tests using pytest in the virtual environment
+                sh '. venv/bin/activate && python3 -m pytest tests/'
             }
         }
 
