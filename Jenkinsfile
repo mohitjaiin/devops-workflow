@@ -19,6 +19,8 @@ pipeline {
                 sh 'apt-get update && apt-get install -y python3-pip' // Install pip if missing
        
                 sh 'pip install -r requirements.txt'
+
+                sh 'pip install pytest'
             }
         }
 
