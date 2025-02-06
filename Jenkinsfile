@@ -16,14 +16,24 @@ pipeline {
         stage('Build Application') {
             steps {
                 sh 'apt-get update && apt-get install -y python3-pip'  // Install pip if missing
-                sh 'python3 -m pip install -r requirements.txt'  // Use python3 -m pip for pip commands
+                sh 'python3 -m venv venv'  // Create virtual environment
+                sh 'source venv/bin/activate'  // Activate virtual environment
+                sh 'python3 -m pip install --upgrade pip'  // Upgrade pip
+                sh 'python3 -m pip install -r requirements.txt'  // Install dependencies
                 sh 'python3 -m pip install pytest'  // Install pytest
             }
         }
 
         stage('Verify Pytest Installation') {
             steps {
-                sh 'python3 -m pytest --version || echo pytest not found'  // Verify pytest installation
+                sh 'python3 -m pip show pytest || echo "Pytest is not installed properly"'
+            }
+        }
+
+        stage('Verify Python and Pip Paths') {
+            steps {
+                sh 'which python3'
+                sh 'which pip3'
             }
         }
 
