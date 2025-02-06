@@ -15,7 +15,9 @@ pipeline {
 
         stage('Build Application') {
             steps {
-                sh 'apt-get update && apt-get install -y python3-pip'  // Install pip if missing
+                // Install necessary packages including python3-venv
+                sh 'apt-get update && apt-get install -y python3-pip python3-venv'
+                // Create and activate the virtual environment
                 sh 'python3 -m venv venv'  // Create virtual environment
                 sh 'source venv/bin/activate'  // Activate virtual environment
                 sh 'python3 -m pip install --upgrade pip'  // Upgrade pip
