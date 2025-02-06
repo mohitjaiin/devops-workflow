@@ -1,73 +1,65 @@
 pipeline {
     agent any
-    
     environment {
-        // Set up the virtual environment directory
-        VENV_DIR = 'venv'
+        GIT_REPO = 'https://github.com/mohitjaiin/python-flask-app.git'
+        BRANCH = 'main'
     }
-    
     stages {
-        stage('Checkout SCM') {
+        stage('Checkout') {
             steps {
-                // Checkout the code from the Git repository
-                checkout scm
+                git branch: "${BRANCH}", url: "${GIT_REPO}"
             }
         }
-        
-        stage('Install Dependencies') {
+        stage('Build') {
             steps {
-                // Update package lists and install python3-pip, python3-venv
-                sh '''
-                    apt-get update && apt-get install -y python3-pip python3-venv
-                '''
+                script {
+                    echo "Setting up virtual environment..."
+                    sh 'python3 -m venv venv'
+                    sh './venv/bin/pip install -r requirements.txt'
+                }
             }
         }
-
-        stage('Build Application') {
-    steps {
-        // Create and activate the virtual environment
-        sh '''
-            python3 -m venv ${VENV_DIR}
-            . ${VENV_DIR}/bin/activate
-            python3 -m pip install --upgrade pip
-            python3 -m pip install -r requirements.txt
-        '''
-    }
-}
-
-        stage('Run Tests') {
+        stage('Deploy') {
             steps {
-                // Activate the virtual environment and run tests
-                sh '''
-                    . ${VENV_DIR}/bin/activate
-                    python3 -m pytest tests/
-                '''
+                script {
+                    echo "Deploying the application..."
+                    // Build the Docker image and run it
+                    sh 'docker build -t python-flask-app .'
+                    sh 'docker run -d -p 5000:5000 python-flask-app'
+                }
             }
         }
-        
-        stage('Build Docker Image') {
+        stage('Test') {
             steps {
-                // Build the Docker image (if needed, adjust based on your Dockerfile)
-                sh '''
-                    docker build -t flaskapp .
-                '''
+                script {
+                    echo "Testing the API with curl..."
+                    // Make a GET request to the /status/operation endpoint
+                    def response = sh(script: 'curl -s http://localhost:5000/status/operation', returnStdout: true).trim()
+                    echo "API Response: ${response}"
+                    // Check if the response matches expected output
+                    if (response == '{"health": "All systems operational"}') {
+                        echo "Test Passed"
+                    } else {
+                        error "Test Failed: Unexpected response"
+                    }
+                }
             }
         }
-        
         stage('Run Application') {
             steps {
-                // Run the application (if needed, adjust based on your app's requirements)
-                sh '''
-                    docker run -d -p 5000:5000 flaskapp
-                '''
+                script {
+                    echo "Running the application..."
+                    sh 'curl http://localhost:5000/status/operation'
+                }
             }
         }
     }
-    
     post {
-        always {
-            // Clean up resources if needed
-            echo 'Pipeline execution completed!'
+        success {
+            echo "Pipeline executed successfully!"
+        }
+        failure {
+            echo "Pipeline failed!"
         }
     }
 }
