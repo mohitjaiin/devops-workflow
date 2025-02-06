@@ -24,16 +24,16 @@ pipeline {
         }
 
         stage('Build Application') {
-            steps {
-                // Create and activate the virtual environment
-                sh '''
-                    python3 -m venv ${VENV_DIR}
-                    source ${VENV_DIR}/bin/activate
-                    python3 -m pip install --upgrade pip
-                    python3 -m pip install -r requirements.txt
-                '''
-            }
-        }
+    steps {
+        // Create and activate the virtual environment
+        sh '''
+            python3 -m venv ${VENV_DIR}
+            . ${VENV_DIR}/bin/activate
+            python3 -m pip install --upgrade pip
+            python3 -m pip install -r requirements.txt
+        '''
+    }
+}
 
         stage('Run Tests') {
             steps {
