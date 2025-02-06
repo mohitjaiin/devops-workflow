@@ -15,18 +15,21 @@ pipeline {
 
         stage('Build Application') {
             steps {
-                
-                sh 'apt-get update && apt-get install -y python3-pip' // Install pip if missing
-       
-                sh 'pip install -r requirements.txt'
+                sh 'apt-get update && apt-get install -y python3-pip'  // Install pip if missing
+                sh 'python3 -m pip install -r requirements.txt'  // Use python3 -m pip for pip commands
+                sh 'python3 -m pip install pytest'  // Install pytest
+            }
+        }
 
-                sh 'pip install pytest'
+        stage('Verify Pytest Installation') {
+            steps {
+                sh 'python3 -m pytest --version || echo pytest not found'  // Verify pytest installation
             }
         }
 
         stage('Run Tests') {
             steps {
-                sh 'pytest tests/'
+                sh 'python3 -m pytest tests/'  // Run tests using python3
             }
         }
 
