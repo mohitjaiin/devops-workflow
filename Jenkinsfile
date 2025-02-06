@@ -17,12 +17,16 @@ pipeline {
             steps {
                 // Install necessary packages including python3-venv
                 sh 'apt-get update && apt-get install -y python3-pip python3-venv'
-                // Create and activate the virtual environment
-                sh 'python3 -m venv venv'  // Create virtual environment
-                sh 'source venv/bin/activate'  // Activate virtual environment
-                sh 'python3 -m pip install --upgrade pip'  // Upgrade pip
-                sh 'python3 -m pip install -r requirements.txt'  // Install dependencies
-                sh 'python3 -m pip install pytest'  // Install pytest
+                // Create the virtual environment
+                sh 'python3 -m venv venv'  
+                // Activate the virtual environment (using . instead of source)
+                sh '. venv/bin/activate'  
+                // Upgrade pip
+                sh 'python3 -m pip install --upgrade pip'  
+                // Install dependencies from requirements.txt
+                sh 'python3 -m pip install -r requirements.txt'  
+                // Install pytest
+                sh 'python3 -m pip install pytest'  
             }
         }
 
